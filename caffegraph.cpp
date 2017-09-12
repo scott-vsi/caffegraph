@@ -48,10 +48,12 @@ class Model {
           tips.erase(layer_params.bottom(0));
           continue;
         }
-
+        // only allow a Data layer to appear at the beginning of a prototxt file
         if(layer_params.type().find("Data") != std::string::npos) {
-          if(i > -1)
+          // skip the first layer, if it is a data layer because we inserted a new "cannonical" data layer
+          if(i == 0) {
             continue;
+          }
           roots.push_back(layer_params.name());
         }
 
