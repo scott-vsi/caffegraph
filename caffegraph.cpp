@@ -213,7 +213,14 @@ void loadModel(void** handle, const char* prototxt, const char* caffemodel) {
         shape->add_dim(proto_params->input_dim(i));
     } else {
       auto& ip_shape = proto_params->input_shape();
-      std::copy(ip_shape.begin()+1, ip_shape.end(), input_shape_ins);
+      // FIXME this does not remove the batch size, it removes the first shape
+      //std::copy(ip_shape.begin()+1, ip_shape.end(), input_shape_ins);
+      // this will work for now
+      for(int j = 0; j < ip_shape.size(); ++j) {
+        auto* shape = canon_input_param->add_shape();
+        for(int i = 1; i < 4; ++i) // assume first input is data
+          shape->add_dim(ip_shape.Get(j).dim(i));
+      }
     }
     data_layer_name = proto_params->input(0);
 
