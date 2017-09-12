@@ -105,6 +105,7 @@ LayerInit(Data) {
 
 LayerInit(DummyData) {
   auto& param = params.dummy_data_param();
+  // TODO dummy_data parameters num, channels, height, width are deprecated. use the shape parameter
   assert(param.num_size() == param.channels_size() && param.num_size() == param.height_size() && param.num_size() == param.width_size());
   for(int i=0; i < param.num_size(); ++i) {
     std::vector<int> inp_dims = {(int)param.num(i), (int)param.channels(i), (int)param.height(i), (int)param.width(i)};
