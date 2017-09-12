@@ -116,8 +116,8 @@ LayerInit(Convolution) {
 
   if(conv_params.has_kernel_w()) {
     k = {conv_params.kernel_w(), conv_params.kernel_h()};
-    p = {conv_params.kernel_w(), conv_params.kernel_h()};
-    k = {conv_params.kernel_w(), conv_params.kernel_h()};
+    p = {conv_params.pad_w(), conv_params.pad_h()};
+    d = {conv_params.stride_w(), conv_params.stride_h()};
   } else {
     auto& ks = conv_params.kernel_size();
     k = std::vector<unsigned int>(ks.begin(), ks.end());
