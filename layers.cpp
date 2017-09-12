@@ -40,6 +40,8 @@ Layer* Layer::MakeLayer(const caffe::LayerParameter& params,
                         std::vector<Layer*> inputs) {
   if(params.type() == "Data")
     return new DataLayer(params, inputs);
+  else if(params.type() == "DummyData")
+    return new DummyDataLayer(params, inputs);
   else if(params.type() == "Convolution")
     return new ConvolutionLayer(params, inputs);
   else if(params.type() == "Pooling")
@@ -96,6 +98,16 @@ LayerInit(Data) {
   for(auto& shape : input_param.shape()) {
     auto& dims = shape.dim();
     std::vector<int> inp_dims(dims.begin(), dims.end());
+    output_sizes.push_back(inp_dims);
+  }
+  lua_layers.emplace_back(name, "nn.Identity()", "");
+}
+
+LayerInit(DummyData) {
+  auto& param = params.dummy_data_param();
+  assert(param.num_size() == param.channels_size() && param.num_size() == param.height_size() && param.num_size() == param.width_size());
+  for(int i=0; i < param.num_size(); ++i) {
+    std::vector<int> inp_dims = {(int)param.num(i), (int)param.channels(i), (int)param.height(i), (int)param.width(i)};
     output_sizes.push_back(inp_dims);
   }
   lua_layers.emplace_back(name, "nn.Identity()", "");

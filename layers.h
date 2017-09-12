@@ -59,6 +59,7 @@ class InputLayer: public Layer {
 };
 
 LayerDef(Data);
+LayerDef(DummyData);
 LayerDef(Dropout);
 LayerDef(Eltwise);
 LayerDef(Concat);
