@@ -456,7 +456,9 @@ LayerInit(Tanh) {
 
 LayerInit(Dropout) {
   std::ostringstream module_os;
-  module_os << "nn.Dropout(" << params.dropout_param().dropout_ratio() << ")";
+  // Dropout layers should be disabled while testing
+  module_os << "nn.Identity()";
+  //module_os << "nn.Dropout(" << params.dropout_param().dropout_ratio() << ")";
   lua_layers.emplace_back(name, module_os.str(), inputs[0]->name);
 }
 
