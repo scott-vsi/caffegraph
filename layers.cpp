@@ -168,8 +168,10 @@ LayerInit(Convolution) {
   std::vector<int> input_size = inputs[0]->GetOutputSizes()[0];
   std::vector<int> output_size(input_size.size());
   output_size[0] = nOutputPlane;
-  for(int i = 0; i < k.size(); ++i)
+  for(int i = 0; i < k.size(); ++i) {
     output_size[i+1] = (input_size[i+1] + 2*p[i] - k[i]) / d[i] + 1;
+  }
+
   output_sizes.push_back(output_size);
 }
 
@@ -184,7 +186,7 @@ void ConvolutionLayer::Parameterize(THFloatTensor** tensors) {
 LayerInit(Pooling) {
   auto& pooling_params = params.pooling_param();
 
-  if(pooling_params.kernel_size() > 0) {
+  if(pooling_params.has_kernel_size()) {
     k.push_back(pooling_params.kernel_size());
     k.push_back(pooling_params.kernel_size());
   } else {
@@ -192,7 +194,7 @@ LayerInit(Pooling) {
     k.push_back(pooling_params.kernel_h());
   }
 
-  if(pooling_params.stride() > 0) {
+  if(pooling_params.has_stride()) {
     d.push_back(pooling_params.stride());
     d.push_back(pooling_params.stride());
   } else {
@@ -200,7 +202,7 @@ LayerInit(Pooling) {
     d.push_back(pooling_params.stride_h());
   }
 
-  if(pooling_params.pad() > 0) {
+  if(pooling_params.has_pad()) {
     p.push_back(pooling_params.pad());
     p.push_back(pooling_params.pad());
   } else {
