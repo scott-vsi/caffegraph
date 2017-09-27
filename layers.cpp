@@ -215,16 +215,34 @@ LayerInit(Pooling) {
   std::string pool_type = pooling_params.pool() == caffe::PoolingParameter::MAX ?
     "Max" : "Average";
 
+  // HACK
+  // when converting the model to caffe, dlib sets the padding to 0 in order to
+  // preserve the expected output size because caffe computes the output size for
+  // pooling layers differently from its other layers and from dlib.
+  // although i do not actually think this is correct thing to do, because it
+  // affects the encodings, i cannot simply force the padding to 1 in the
+  // proto/prototxt without an intervening crop layer.
+  // instead, force the padding here, and use the floor function to compute the
+  // output size
+  if(name == "max_pool375") {
+    p[0] = 1; p[1] = 1;
+  }
+
   std::ostringstream module_os;
   module_os << "nn.Spatial" << pool_type << "Pooling(" << k[0] << ", " << k[1] << ", ";
-  module_os << d[0] << ", " << d[1] << ", " << p[0] << ", " << p[1] << "):ceil()";
+  // per dlib, compute the output size with the floor, instead of the ceil,
+  // function as one would expected for a caffe model
+  module_os << d[0] << ", " << d[1] << ", " << p[0] << ", " << p[1] << "):floor()";
   lua_layers.emplace_back(name, module_os.str(), inputs[0]->name);
 
   std::vector<int> input_size = inputs[0]->GetOutputSizes()[0];
   std::vector<int> output_size(input_size.size());
   output_size[0] = input_size[0];
-  for(int i = 0; i < k.size(); ++i)
-    output_size[i+1] = ceil((double)(input_size[i+1] + 2*p[i] - k[i]) / d[i] + 1);
+  for(int i = 0; i < k.size(); ++i) {
+    // again, per dlib, compute the output size with the floor, instead of the
+    // ceil, function as one would expected for a caffe model
+    output_size[i+1] = floor((double)(input_size[i+1] + 2*p[i] - k[i]) / d[i] + 1);
+  }
   // require that last pooling window starts in the image, not the padding
   if(p[0] != 0 && ((output_size[1] - 1) * d[0]) >= (input_size[1] + p[0]))
     --output_size[1];
