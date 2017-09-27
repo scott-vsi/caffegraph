@@ -108,7 +108,8 @@ LayerInit(DummyData) {
   // TODO dummy_data parameters num, channels, height, width are deprecated. use the shape parameter
   assert(param.num_size() == param.channels_size() && param.num_size() == param.height_size() && param.num_size() == param.width_size());
   for(int i=0; i < param.num_size(); ++i) {
-    std::vector<int> inp_dims = {(int)param.num(i), (int)param.channels(i), (int)param.height(i), (int)param.width(i)};
+    // it appears that layers skip the first dimension (param.num(i), i.e., batch size)
+    std::vector<int> inp_dims = {(int)param.channels(i), (int)param.height(i), (int)param.width(i)};
     output_sizes.push_back(inp_dims);
 
     lua_layers.emplace_back(name, "nn.Identity()", "");
