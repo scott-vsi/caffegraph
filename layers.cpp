@@ -110,8 +110,9 @@ LayerInit(DummyData) {
   for(int i=0; i < param.num_size(); ++i) {
     std::vector<int> inp_dims = {(int)param.num(i), (int)param.channels(i), (int)param.height(i), (int)param.width(i)};
     output_sizes.push_back(inp_dims);
+
+    lua_layers.emplace_back(name, "nn.Identity()", "");
   }
-  lua_layers.emplace_back(name, "nn.Identity()", "");
 }
 
 std::vector<std::vector<int>> Layer::GetOutputSizes() {
