@@ -50,7 +50,8 @@ class Model {
         }
         // only allow a Data layer to appear at the beginning of a prototxt file
         if(layer_params.type().find("Data") != std::string::npos) {
-          // skip the first layer, if it is a data layer because we inserted a new "cannonical" data layer
+          // skip the first layer, if it is a data layer, because we appended a
+          // new "cannonical" data layer to the graph
           if(i == 0) {
             continue;
           }
