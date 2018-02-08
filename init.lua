@@ -14,6 +14,16 @@ void freeModel(void** handle);
 caffegraph.C = ffi.load(package.searchpath('libcaffegraph', package.cpath))
 
 caffegraph.load = function(prototxt, caffemodel)
+  net, seq = caffegraph.load_both(prototxt, caffemodel)
+  return net
+end
+
+caffegraph.load_seq = function(prototxt, caffemodel)
+  net, seq = caffegraph.load_both(prototxt, caffemodel)
+  return seq
+end
+
+caffegraph.load_both = function(prototxt, caffemodel)
   local handle = ffi.new('void*[1]')
 
   -- load the caffemodel into a graph structure
@@ -30,7 +40,7 @@ caffegraph.load = function(prototxt, caffemodel)
 
   -- -- bring the model into lua world
   local model, modmap = dofile(luaModel)
-  local net = nn.Sequential()
+  local seq = nn.Sequential()
 
   -- transfer the parameters
   local noData = torch.FloatTensor():zero():cdata()
@@ -49,7 +59,7 @@ caffegraph.load = function(prototxt, caffemodel)
         params[(i-1)*2+1] = module.weight and module.weight:cdata() or noData
         params[i*2] = module.bias and module.bias:cdata() or noData
       end
-      net:add(module)
+      seq:add(module)
     end
     module_params[i] = ffi.new('THFloatTensor*['..#params..']', params)
   end
@@ -57,8 +67,7 @@ caffegraph.load = function(prototxt, caffemodel)
   caffegraph.C.getParams(handle, cParams)
   caffegraph.C.freeModel(handle)
 
-  --return model
-  return net
+  return model, seq
 end
 
 return caffegraph
