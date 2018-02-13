@@ -45,23 +45,39 @@ caffegraph.load_both = function(prototxt, caffemodel)
   -- transfer the parameters
   local noData = torch.FloatTensor():zero():cdata()
   local module_params = {}
-  for i,nodes in ipairs(modmap) do
+  for j,nodes in ipairs(modmap) do
     local params = {}
     for i=1,#nodes do
       local module = nodes[i].data.module
       module:float()
+
+      --if torch.isTypeOf(module, nn.BatchNormalization) then
+      --  module.weight:fill(1)
+      --  module.bias:zero()
+      --  params[(i-1)*2+1] = module.running_mean:cdata()
+      --  params[i*2] = module.running_var:cdata()
+      --else
+      --  params[(i-1)*2+1] = module.weight and module.weight:cdata() or noData
+      --  params[i*2] = module.bias and module.bias:cdata() or noData
+      --end
+
       if torch.isTypeOf(module, nn.BatchNormalization) then
-        module.weight:fill(1)
-        module.bias:zero()
-        params[(i-1)*2+1] = module.running_mean:cdata()
-        params[i*2] = module.running_var:cdata()
-      else
-        params[(i-1)*2+1] = module.weight and module.weight:cdata() or noData
-        params[i*2] = module.bias and module.bias:cdata() or noData
+        -- HACK in dlib, a batch norm layer is swapped out at test time for an
+        -- affine layer (a scale and shift). there is not an affine layer in
+        -- torch, and this package ops to translate it to an nn.CMul and nn.Add.
+        -- however, this makes the next steps in the process harder. instead,
+        -- i hijack the affine transformation included (by definition) in the
+        -- nn.BatchNormalization layer (used while traning) to perform an
+        -- affine transformation
+        module.running_mean:zero()
+        module.running_var:fill(1)
       end
+      params[(i-1)*2+1] = module.weight and module.weight:cdata() or noData
+      params[i*2] = module.bias and module.bias:cdata() or noData
+
       seq:add(module)
     end
-    module_params[i] = ffi.new('THFloatTensor*['..#params..']', params)
+    module_params[j] = ffi.new('THFloatTensor*['..#params..']', params)
   end
   local cParams = ffi.new('THFloatTensor**['..#module_params..']', module_params)
   caffegraph.C.getParams(handle, cParams)

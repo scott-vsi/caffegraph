@@ -274,9 +274,14 @@ void BatchNormLayer::Parameterize(THFloatTensor** tensors) {
   THCopy(params.blobs(0), tensors[0]); // mean
   THCopy(params.blobs(1), tensors[1]); // var
 
-  float runningScale = 1 / params.blobs(2).data(0);
-  THFloatTensor_mul(tensors[0], tensors[0], runningScale);
-  THFloatTensor_mul(tensors[1], tensors[1], runningScale);
+  // HACK
+  // dlib:convert_dlib_nets_to_caffe does not technically support batch norm layers;
+  // instead it saves a Scale layer, which consists of a vector of weights and of
+  // biases (one per channel). (the ScaleLayer saves a CMul and Add, which are not
+  // existing layers in PyTorch)
+  //float runningScale = 1 / params.blobs(2).data(0);
+  //THFloatTensor_mul(tensors[0], tensors[0], runningScale);
+  //THFloatTensor_mul(tensors[1], tensors[1], runningScale);
 }
 
 LayerInit(InnerProduct) {
