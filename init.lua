@@ -72,6 +72,7 @@ caffegraph.load_both = function(prototxt, caffemodel)
         -- TODO i could add a dummy nn.Scale layer which would allow me to create
         -- .lua file and load the model definition and then hijack the batch norm
         -- layer here
+        -- RE this would also involve re-writting the Scale layer in layers.cpp
         module.running_mean:zero()
         module.running_var:fill(1)
       end
