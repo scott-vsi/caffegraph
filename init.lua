@@ -69,6 +69,9 @@ caffegraph.load_both = function(prototxt, caffemodel)
         -- i hijack the affine transformation included (by definition) in the
         -- nn.BatchNormalization layer (used while traning) to perform an
         -- affine transformation
+        -- TODO i could add a dummy nn.Scale layer which would allow me to create
+        -- .lua file and load the model definition and then hijack the batch norm
+        -- layer here
         module.running_mean:zero()
         module.running_var:fill(1)
       end
