@@ -67,7 +67,7 @@ caffegraph.load_both = function(prototxt, caffemodel)
         -- torch, and this package ops to translate it to an nn.CMul and nn.Add.
         -- however, this makes the next steps in the process harder. instead,
         -- i hijack the affine transformation included (by definition) in the
-        -- nn.BatchNormalization layer (used while traning) to perform an
+        -- nn.BatchNormalization layer (used while training) to perform an
         -- affine transformation
         -- TODO i could add a dummy nn.Scale layer which would allow me to create
         -- .lua file and load the model definition and then hijack the batch norm
