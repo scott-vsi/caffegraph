@@ -215,14 +215,19 @@ void loadModel(void** handle, const char* prototxt, const char* caffemodel) {
       for(int i = 1; i < 4; ++i) // assume first input is data
         shape->add_dim(proto_params->input_dim(i));
     } else {
-      auto& ip_shape = proto_params->input_shape();
-      // FIXME this does not remove the batch size, it removes the first shape
-      //std::copy(ip_shape.begin()+1, ip_shape.end(), input_shape_ins);
-      // this will work for now
-      for(int j = 0; j < ip_shape.size(); ++j) {
-        auto* shape = canon_input_param->add_shape();
-        for(int i = 1; i < 4; ++i) // assume first input is data
-          shape->add_dim(ip_shape.Get(j).dim(i));
+      if (proto_params->input_shape_size() > 0) {
+        auto& ip_shape = proto_params->input_shape();
+        // FIXME this does not remove the batch size, it removes the first shape
+        //std::copy(ip_shape.begin()+1, ip_shape.end(), input_shape_ins);
+        // this will work for now
+        for(int j = 0; j < ip_shape.size(); ++j) {
+          auto* shape = canon_input_param->add_shape();
+          for(int i = 1; i < 4; ++i) // assume first input is data
+            shape->add_dim(ip_shape.Get(j).dim(i));
+        }
+      } else {
+        print("Could not load input shape. Modifiy the .prototxt to use the legacy (v0) style input fields.");
+        return;
       }
     }
     data_layer_name = proto_params->input(0);
