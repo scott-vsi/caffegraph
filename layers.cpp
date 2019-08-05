@@ -224,8 +224,8 @@ LayerInit(Pooling) {
   // proto/prototxt without an intervening crop layer.
   // instead, force the padding here, and use the floor function to compute the
   // output size
-  if(name == "max_pool375") {
-    std::cout << "NOTE the padding for layer max_pool375 changed to 1" << std::endl;
+  if(name == "max_pool378") {
+    std::cout << "NOTE the padding for layer max_pool378 changed to 1" << std::endl;
     p[0] = 1; p[1] = 1;
   }
 
